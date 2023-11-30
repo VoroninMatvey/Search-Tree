@@ -38,13 +38,12 @@ public:
         }
 private:
         void create_root_node(const key_type& key) {
-            pointer root_ptr_ = new node_type{key};
+            root_ptr_ = new node_type{key};
             end_ptr_->left_ = root_ptr_;
             root_ptr_->parent_ = end_ptr_;
             root_ptr_->is_it_red_ = false;
             begin_ptr_ = root_ptr_;
         }
-
         pointer create_node(const key_type& key) {
             pointer ptr = new node_type{key};
             return ptr;
@@ -63,7 +62,7 @@ public:
             }
 
             if(nullptr == par) { //Tree was empty
-                this->create_root_node(key);
+                create_root_node(key);
                 return root_ptr_;
             }
 

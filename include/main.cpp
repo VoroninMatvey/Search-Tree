@@ -6,20 +6,22 @@
 int main() {
 
 	Search_Tree::Red_Black_tree<int, std::less<int>> test;
-	for(int i = 1; i <= 100; ++i) {
-		test.unbalanced_insertion(i);
-	}
+	
+	test.unbalanced_insertion(50);
+	test.unbalanced_insertion(47);
+	test.unbalanced_insertion(55);
+	test.unbalanced_insertion(10);
+	test.unbalanced_insertion(48);
+	test.unbalanced_insertion(60);
 
-	std::cout << "Success" << 1 << std::endl;
-
-	Search_Tree::Red_Black_tree<int, std::less<int>>::iterator it1 = test.begin();
-	std::cout << "Success" << 2 << std::endl;
-	Search_Tree::Red_Black_tree<int, std::less<int>>::iterator it2 = test.end();
-	std::cout << "Success" << 3 << std::endl;
-	while(it1 != it2) {
-		std::cout << *it1 << std::endl;
-		++it1;
+	Search_Tree::Red_Black_tree<int, std::less<int>>::iterator it = test.end();
+	--it;
+	Search_Tree::Red_Black_tree<int, std::less<int>>::iterator it_beg = test.begin();
+	for(it, it_beg; it != it_beg; --it) {
+		std::cout << *it << std::endl;
 	}
+	--it;
+	std::cout << *it << std::endl;
+
 	return 0;
-
 }
