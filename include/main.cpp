@@ -5,23 +5,19 @@
 
 int main() {
 
-	Search_Tree::Red_Black_tree<int, std::less<int>> test;
+	Search_Tree::Red_Black_tree<int> test;
 	
-	test.unbalanced_insertion(50);
-	test.unbalanced_insertion(47);
-	test.unbalanced_insertion(55);
-	test.unbalanced_insertion(10);
-	test.unbalanced_insertion(48);
-	test.unbalanced_insertion(60);
+	test.insert(50);
+	std::cout << "norv";
+	test.insert(47);
+	test.insert(55);
+	test.insert(10);
+	test.insert(48);
+	test.insert(60);
 
-	Search_Tree::Red_Black_tree<int, std::less<int>>::iterator it = test.end();
-	--it;
-	Search_Tree::Red_Black_tree<int, std::less<int>>::iterator it_beg = test.begin();
-	for(it, it_beg; it != it_beg; --it) {
-		std::cout << *it << std::endl;
-	}
-	--it;
+	Search_Tree::Red_Black_tree<int>::iterator it = test.find(48);
 	std::cout << *it << std::endl;
+	
 
 	return 0;
 }

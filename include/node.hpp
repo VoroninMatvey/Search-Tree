@@ -10,12 +10,12 @@ struct Node {
     explicit Node(const KeyT& key) :
     key_{key},
     parent_{nullptr}, left_{nullptr}, right_{nullptr},
-    is_it_red_{true} {};
-
+    red_{true} {};
+//----------------------------------------------------------------------------------------------
     const KeyT key_;
     pointer parent_, left_, right_;
-    bool is_it_red_;
-
+    bool red_;
+//----------------------------------------------------------------------------------------------
     pointer minimum(pointer val) const { //maybe private
         while(val->left_) {
             val = val->left_;
