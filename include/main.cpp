@@ -19,5 +19,4 @@ int main() {
 	test.insert(163);
 	test.insert(166);
 
-	return 0;
 }
