@@ -10,11 +10,12 @@ struct Node {
     explicit Node(const KeyT& key) :
     key_{key},
     parent_{nullptr}, left_{nullptr}, right_{nullptr},
-    red_{true} {};
+    red_{true}, sum_offspring_{0} {};
 //----------------------------------------------------------------------------------------------
     const KeyT key_;
     pointer parent_, left_, right_;
     bool red_;
+    int sum_offspring_;
 //----------------------------------------------------------------------------------------------
     pointer minimum(pointer val) const { //maybe private
         while(val->left_) {

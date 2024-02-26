@@ -20,7 +20,8 @@ public:
         using reverse_iterator = std::reverse_iterator<iterator>;
         using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-        /*const_*/pointer find(const key_type& key) const {
+        /*const_*/pointer find(const key_type& key) /*const*/ {
+            std::cout<<key<<::std::endl<<std::endl;
             pointer ptr = root_ptr_;
             while(ptr && ptr->key_ != key) {
                 if(key < ptr->key_) {
@@ -43,34 +44,6 @@ private:
             root_ptr_->parent_ = end_ptr_;
             root_ptr_->red_ = false;
             begin_ptr_ = root_ptr_;
-        }
-
-        pointer unbalanced_insertion(const key_type& key) {
-            pointer par = nullptr;
-            pointer ins = root_ptr_;
-            while(ins) {
-                par = ins;
-                if(key < ins->key_) {
-                    ins = ins->left_;
-                } else {
-                    ins = ins->right_;
-                }
-            }
-
-            if(!par) { //Tree was empty
-                create_root_node(key);
-                return root_ptr_; //will need to be removed after the function is created RB_INSERT_FIXUP
-            } else if(key < par->key_) {
-                ins = new node_type{key};
-                par->left_ = ins;
-                ins->parent_ = par;
-                return ins; //will need to be removed after the function is created RB_INSERT_FIXUP
-            } else {
-                ins = new node_type{key};
-                par->right_ = ins;
-                ins->parent_ = par;
-                return ins; //will need to be removed after the function is created  RB_INSERT_FIXUP
-            }
         } 
 public:
         pointer insert(const key_type& key) {
@@ -99,11 +72,53 @@ public:
                 par->right_ = ins;
                 ins->parent_ = par;
             }
+
+            pointer extr = ins;
+            while(extr->parent_ != end_ptr_) {
+                extr->parent_->sum_offspring_ += 1;
+                extr = extr->parent_;
+            }
+
             RB_insert_fixup(ins);
             return ins;
         }
 
+        void recalculation_of_sum_offspring(pointer ptr, bool right_rotate) {
+            if(right_rotate) {
+                pointer y_ptr = ptr;
+                pointer x_ptr = y_ptr->left_;
+
+                if(x_ptr->left_ == nullptr) {
+                    y_ptr->sum_offspring_ -= 1;
+                } else {
+                    y_ptr->sum_offspring_ -= (2 + x_ptr->left_->sum_offspring_);
+                }
+
+                if(y_ptr->right_ == nullptr) {
+                    x_ptr->sum_offspring_ += 1;
+                } else {
+                    x_ptr->sum_offspring_ += (2 + y_ptr->right_->sum_offspring_);
+                }
+            } else {
+                pointer x_ptr = ptr;
+                pointer y_ptr = x_ptr->right_;
+
+                if(y_ptr->right_ == nullptr) {
+                    x_ptr->sum_offspring_ -= 1;
+                } else {
+                    x_ptr->sum_offspring_ -= (2 + y_ptr->right_->sum_offspring_);
+                }
+
+                if(x_ptr->left_ == nullptr) {
+                    y_ptr->sum_offspring_ += 1;
+                } else {
+                    y_ptr->sum_offspring_ += (2 + x_ptr->left_->sum_offspring_);
+                }
+            }
+        }
+
         void left_rotate(pointer x_ptr) {
+            recalculation_of_sum_offspring(x_ptr, false);
             pointer y_ptr = x_ptr->right_;
             if(!y_ptr) {
                 return;
@@ -129,7 +144,9 @@ public:
         }
 
         void right_rotate(pointer y_ptr) {
+            recalculation_of_sum_offspring(y_ptr, true);
             pointer x_ptr = y_ptr->left_;
+
             if(!x_ptr) {
                 return;
             } 
@@ -244,13 +261,153 @@ public:
             //-------------------------------------------------------------------------
             pointer extr_gr_son_ptr = find(key);
             if(extr_gr_son_ptr->parent_ != root_ptr_ && extr_gr_son_ptr != root_ptr_) {
-                std::cout<<"vnuk - "<<extr_gr_son_ptr->key_ <<"; red: "<<extr_gr_son_ptr->red_<<std::endl;
-                std::cout<<"otec - "<<extr_gr_son_ptr->parent_->key_ <<"; red: "<<extr_gr_son_ptr->parent_->red_<<std::endl;
-                std::cout<<"ded - "<<extr_gr_son_ptr->parent_->parent_->key_ <<"; red: "<<extr_gr_son_ptr->parent_->parent_->red_<<std::endl<<std::endl;
+                std::cout<<"vnuk - "<<extr_gr_son_ptr->key_ <<"; red: "<<extr_gr_son_ptr->red_<<"; offspring: "<<extr_gr_son_ptr->sum_offspring_<<std::endl;
+                std::cout<<"otec - "<<extr_gr_son_ptr->parent_->key_ <<"; red: "<<extr_gr_son_ptr->parent_->red_<<"; offspring: "<<extr_gr_son_ptr->parent_->sum_offspring_<<std::endl;
+                std::cout<<"ded - "<<extr_gr_son_ptr->parent_->parent_->key_ <<"; red: "<<extr_gr_son_ptr->parent_->parent_->red_<<"; offspring: "<<extr_gr_son_ptr->parent_->parent_->sum_offspring_<<std::endl<<std::endl;
             }
             //-------------------------------------------------------------------------
-            
+        }
 
+        const_pointer lower_bound (const key_type& key) const {
+            if(!root_ptr_) {
+                return nullptr;
+            }
+            pointer curr_ptr = root_ptr_;
+            pointer prev_ptr = nullptr;
+
+            while(curr_ptr) {
+                if(key <= curr_ptr->key_) {
+                    prev_ptr = curr_ptr;
+                    curr_ptr = curr_ptr->left_;
+                } else {
+                    curr_ptr = curr_ptr->right_;
+                }
+            }
+            return prev_ptr ? prev_ptr : nullptr;
+        }
+
+        const_pointer upper_bound (const key_type& key) const {
+            if(!root_ptr_) {
+                return nullptr;
+            }
+            pointer curr_ptr = root_ptr_;
+            pointer prev_ptr = nullptr;
+
+            while(curr_ptr) {
+                if(key < curr_ptr->key_) {
+                    prev_ptr = curr_ptr;
+                    curr_ptr = curr_ptr->left_;
+                } else {
+                    curr_ptr = curr_ptr->right_;
+                }
+            }
+            return prev_ptr ? prev_ptr : nullptr;
+        }
+
+        int increase_amount_when_the_son_is_left(pointer ptr) {
+            pointer curr_ptr = ptr;
+            pointer par_ptr = ptr->parent_;
+            int amount = 0;
+
+            while(par_ptr != root_ptr_) {
+                if(curr_ptr == par_ptr->left_) {
+                    amount += 1;
+                    if(par_ptr->right_) {
+                        amount += (1 + par_ptr->right_->sum_offspring_);
+                    }
+                }
+                curr_ptr = par_ptr;
+                par_ptr = par_ptr->parent_;
+            }
+            return amount;
+        }
+
+        int increase_amount_when_the_son_is_right(pointer ptr) {
+            pointer curr_ptr = ptr;
+            pointer par_ptr = ptr->parent_;
+            int amount = 0;
+
+             while(par_ptr != root_ptr_) {
+                if(curr_ptr == par_ptr->right_) {
+                    amount += 1;
+                    if(par_ptr->left_) {
+                        amount += (1 + par_ptr->left_->sum_offspring_);
+                    }
+                } 
+                curr_ptr = par_ptr;
+                par_ptr = par_ptr->parent_;
+            }
+            return amount;
+        }
+
+        int left_subtree_more_than_key(pointer ptr) {
+            int amount = 0;
+            if(ptr->right_) {
+                amount += 1 + ptr->right_->sum_offspring_;
+            }
+            return amount + increase_amount_when_the_son_is_left(ptr);
+        }
+
+        int right_subtree_less_than_key(pointer ptr) {
+            int amount = 0;
+            if(ptr->left_) {
+                amount = 1 + ptr->left_->sum_offspring_;
+            }
+            return amount + increase_amount_when_the_son_is_right(ptr);
+        }
+
+        int left_subtree_less_than_key(pointer ptr) {
+            int amount = 0;
+            if(ptr->left_) {
+                amount = 1 + ptr->left_->sum_offspring_;
+            }
+            return amount + increase_amount_when_the_son_is_right(ptr);
+        }
+
+        int right_subtree_more_than_key(pointer ptr) {
+            int amount = 0;
+            if(ptr->right_) {
+                amount += 1 + ptr->right_->sum_offspring_;
+            }
+            return amount + increase_amount_when_the_son_is_left(ptr);   
+        }
+
+        int my_distance(pointer strt, pointer fnsh) {
+            int dist;
+            if(strt->key_ < root_ptr_->key_ && fnsh->key_ > root_ptr_->key_) {
+                dist = left_subtree_more_than_key(strt) + right_subtree_less_than_key(fnsh) + 3;
+                return dist;
+            } else if(strt->key_ < root_ptr_->key_ && fnsh->key_ < root_ptr_->key_) {
+                dist = root_ptr_->left_->sum_offspring_ + 1 - left_subtree_less_than_key(strt) - left_subtree_more_than_key(fnsh);
+                return dist;
+            } else if(strt->key_ > root_ptr_->key_ && fnsh->key_ > root_ptr_->key_) {
+                dist = root_ptr_->right_->sum_offspring_ + 1 - right_subtree_less_than_key(strt) - right_subtree_more_than_key(fnsh);
+                return dist;
+            } else if(strt->key_ < root_ptr_->key_ && fnsh->key_ == root_ptr_->key_) {
+                dist = left_subtree_more_than_key(strt) + 2;
+                return dist;
+            } else if(strt->key_ == root_ptr_->key_ && fnsh->key_ > root_ptr_->key_) {
+                dist = right_subtree_less_than_key(fnsh) + 2;
+                return dist;
+            } else {
+                return -1000;
+            }
+        }
+
+        int output_lower(pointer ptr) {
+            if(ptr != nullptr) {
+                return ptr->key_;
+            } else {
+                return -1000;
+            }
+        }
+
+        int output_upper(pointer ptr) {
+            if(ptr != nullptr) {
+                return ptr->key_;
+            } else {
+                return -1000;
+            }
         }
 
         iterator begin() const {
@@ -265,6 +422,9 @@ public:
             return iterator{root_ptr_};
         } 
 
+        int car(iterator it) {
+            return it->sum_offspring_;
+        }
 
 private:
         pointer root_ptr_;

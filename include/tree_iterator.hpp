@@ -41,9 +41,9 @@ public:
         bool operator !=  (const Tree_iterator& rhs) const {return !(rhs == *this); }
 
         const KeyT& operator * () const {return ptr_->key_; }
-        const KeyT* operator -> () const {return std::addressof(ptr_->key_); }
+        const value_type* operator -> () const {return ptr_; }
 
-private:
+//private:
         pointer ptr_{nullptr};
 
 }; // <--  class Tree_iterator
