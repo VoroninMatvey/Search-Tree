@@ -374,6 +374,10 @@ public:
 
         int my_distance(pointer strt, pointer fnsh) {
             int dist;
+            if(!fnsh) {
+                fnsh = root_ptr_->maximum(root_ptr_);
+                if(fnsh == strt) return 1;
+            } 
             if(strt->key_ < root_ptr_->key_ && fnsh->key_ > root_ptr_->key_) {
                 dist = left_subtree_more_than_key(strt) + right_subtree_less_than_key(fnsh) + 3;
                 return dist;
@@ -386,11 +390,25 @@ public:
             } else if(strt->key_ < root_ptr_->key_ && fnsh->key_ == root_ptr_->key_) {
                 dist = left_subtree_more_than_key(strt) + 2;
                 return dist;
-            } else if(strt->key_ == root_ptr_->key_ && fnsh->key_ > root_ptr_->key_) {
+            } else {
                 dist = right_subtree_less_than_key(fnsh) + 2;
                 return dist;
+            } 
+        }
+
+        int range_query(key_type fst, key_type snd) {
+            pointer strt = lower_bound(fst);
+            pointer fnsh = upper_bound(snd);
+            if(strt == fnsh) {
+                return 0;
+            } else if(!fnsh) { 
+                return my_distance(strt, fnsh);
+            } else if(fst == strt->key_) {
+                return my_distance(strt, fnsh) - 1;
+            } else if(find(snd)) {
+                return my_distance(strt, fnsh) - 1;
             } else {
-                return -1000;
+                return my_distance(strt, fnsh);
             }
         }
 

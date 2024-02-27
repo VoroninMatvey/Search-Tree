@@ -7,7 +7,7 @@ int main() {
 
 	Search_Tree::Red_Black_tree<int> test;
 	
-	/*test.insert(156);
+	test.insert(156);
 	test.insert(131);
 	test.insert(171);
 	test.insert(190);
@@ -27,7 +27,7 @@ int main() {
 		std::cout<<i<<")number: "<<*it1<<" ;sum: "<<test.car(it1)<<std::endl<<std::endl;
 		++it1;
 		++i;
-	}*/
+	}
 
 	/*int j = 130;
 	std::cout<<std::endl<<std::endl<<"input number: "<<j<<std::endl;
@@ -44,12 +44,12 @@ int main() {
 	std::cout<<test.right_subtree_less_than_key(test.find(160))<<std::endl;
 	std::cout<<test.left_subtree_less_than_key(test.find(140))<<std::endl;
 	std::cout<<test.right_subtree_more_than_key(test.find(190))<<std::endl;*/
-	int i = 0;
+	/*int i = 0;
 	while(i < 200) {
 		test.insert(i);
 		++i;
-	}
-	std::cout<<test.my_distance(test.find(19), test.find(173))<<std::endl;
+	}*/
+	std::cout<<test.range_query(70,1000)<<std::endl;
 	//std::cout<<test.right_subtree_less_than_key(test.find(171))<<std::endl;
 	//std::cout<<test.mydistance(test.find(156), test.find(156))<<std::endl;
 }
